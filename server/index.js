@@ -8,9 +8,14 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
 app.post("/api/messages", async (req, res) => {
+
   const { message } = req.body;
-  console.log("API key***************:", process.env.REACT_APP_OPENAI_API_KEY);
+
   const prompt = `I want to make a hotdog. Can you provide the recipe?`;
 
   try {
