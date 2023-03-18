@@ -25,7 +25,7 @@ app.post("/api/messages", async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
