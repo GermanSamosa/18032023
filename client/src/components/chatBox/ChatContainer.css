@@ -1,0 +1,8 @@
+.container--chat{
+    background-color: black;
+    color: #fff;
+    height: 80vh;
+    width: 45vh;
+    border-radius: 10px;
+    align-items: flex-end;
+}
