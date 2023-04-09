@@ -1,51 +1,50 @@
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
-require('dotenv').config();
+// Import required modules
+import express, { json } from 'express';
+import axios from 'axios';
+import { config } from 'dotenv';
+config();
 
+// Create the Express app
 const app = express();
+app.use(json());
 
-app.use(express.json());
-app.use(cors());
-
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
-
-app.post("/api/messages", async (req, res) => {
-
-  const { message } = req.body;
-
-  const prompt = `I want to make a hotdog. Can you provide the recipe?`;
-
+// Define the route for recipe recommendations
+app.post('/api/recipes', async (req, res) => {
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/davinci-codex/completions",
-      {
-        prompt,
-        max_tokens: 1024,
-        temperature: 0.5,
-        n: 1,
-        stop: "\n",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // Get the user's message from the request body
+    const { message } = req.body;
 
+    // Generate a recipe recommendation based on the user's message using the OpenAI API
+    const response = await axios({
+      method: 'post',
+      url: 'https://api.openai.com/v1/engines/davinci-codex/completions',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      data: {
+        prompt: `Give me some recipes for ${message}`,
+        max_tokens: 150,
+        n: 1,
+        stop: '\n',
+        temperature: 0.5
+      }
+    });
+
+    // Extract the recommended recipe from the OpenAI API response
     const { choices } = response.data;
     const { text } = choices[0];
 
+    // Send the recipe recommendation back to the frontend as a JSON object
     res.json({ message: text });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: 'Unable to generate recipe recommendations' });
   }
 });
 
+// Start the server
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
